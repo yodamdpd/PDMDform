@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>www.parkinsonz.org - Doctor's Appointment Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+      color: #003366;
+    }
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    select, input[type="text"], textarea, input[type="submit"], button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    input[type="submit"], button {
+      background-color: #005cbf;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    input[type="submit"]:hover, button:hover {
+      background-color: #004a99;
+    }
+    .footer-message {
+      margin-top: 40px;
+      font-size: 14px;
+      color: #333;
+      text-align: center;
+    }
+    .print-buttons {
+      margin-top: 20px;
+      display: none;
+      text-align: center;
+    }
+  </style>
+  <script>
+    function handleSubmit(event) {
+      event.preventDefault();
+      document.getElementById('form').style.display = 'none';
+      document.getElementById('print-options').style.display = 'block';
+    }
+
+    function printCopies() {
+      window.print();
+    }
+  </script>
+</head>
+<body>
+  <h1>www.parkinsonz.org</h1>
+  <form id="form" onsubmit="handleSubmit(event)">
+    <label for="symptoms">Select up to 3 symptoms you'd like to discuss:</label>
+    <select name="symptoms" id="symptoms" multiple size="10">
+      <option value="tremor">Tremor</option>
+      <option value="slowness">Slowness of movement (Bradykinesia)</option>
+      <option value="rigidity">Muscle stiffness (Rigidity)</option>
+      <option value="balance">Balance problems (Postural Instability)</option>
+      <option value="sleep">Sleep disturbances</option>
+      <option value="fatigue">Fatigue</option>
+      <option value="mood">Depression or anxiety</option>
+      <option value="cognition">Memory or cognitive changes</option>
+      <option value="speech">Speech or swallowing difficulties</option>
+      <option value="constipation">Constipation or digestive issues</option>
+      <option value="other">Other</option>
+    </select>
+    <input type="text" name="other_symptoms" placeholder="Other symptom">
+
+    <label for="medications">List your Parkinson's medications, dose and frequency:</label>
+    <textarea name="medications" rows="4" placeholder="Example: Sinemet 25/100 mg, 3 times/day"></textarea>
+
+    <label for="supplements">List any supplements you take:</label>
+    <textarea name="supplements" rows="3" placeholder="Example: Vitamin D, CoQ10, Omega-3, etc."></textarea>
+
+    <label for="exercise">Select exercises you currently do:</label>
+    <select name="exercise" id="exercise" multiple size="10">
+      <option value="walking">Walking</option>
+      <option value="yoga">Yoga</option>
+      <option value="tai_chi">Tai Chi</option>
+      <option value="boxing">Boxing (e.g., Rock Steady Boxing)</option>
+      <option value="cycling">Cycling</option>
+      <option value="strength_training">Strength Training</option>
+      <option value="swimming">Swimming</option>
+      <option value="dance">Dance or Movement Therapy</option>
+      <option value="running">Running</option>
+      <option value="other">Other</option>
+    </select>
+    <input type="text" name="other_exercise" placeholder="Other exercise">
+
+    <label for="questions">Questions you'd like to ask your doctor:</label>
+    <select name="questions" id="questions" multiple size="12">
+      <option value="new_symptoms">Are these new symptoms part of Parkinson’s or something else?</option>
+      <option value="medication_side_effects">Are any of my symptoms side effects from medications?</option>
+      <option value="treatment_change">Is it time to adjust or change my treatment plan?</option>
+      <option value="physical_therapy">Would physical or occupational therapy help me?</option>
+      <option value="clinical_trials">Am I eligible for any clinical trials?</option>
+      <option value="non_motor">What can I do about anxiety or sleep problems?</option>
+      <option value="long_term">What should I expect long-term with Parkinson’s?</option>
+      <option value="care_team">Should I add other specialists to my care team?</option>
+      <option value="dbs">Am I a candidate for Deep Brain Stimulation (DBS)?</option>
+      <option value="ultrasound">Am I a candidate for MRI-guided ultrasound?</option>
+      <option value="vyalev">Am I a candidate for the Vyalev pump?</option>
+      <option value="other">Other</option>
+    </select>
+    <input type="text" name="other_question" placeholder="Other question">
+
+    <label for="notes">Additional notes or questions:</label>
+    <textarea name="notes" id="notes" rows="5" placeholder="Anything else you want to share..."></textarea>
+
+    <input type="submit" value="Submit & Show Print Options">
+  </form>
+
+  <div id="print-options" class="print-buttons">
+    <p>Thank you! Please print 2 copies — one for yourself and one for your doctor.</p>
+    <button onclick="printCopies()">Print This Form</button>
+  </div>
+
+  <div class="footer-message">
+    <p>Thank you for your help. Please send any feedback—positive or negative—and any suggested revisions to <strong>Sara Whittingham, MD</strong> at <a href="mailto:parkinsonzexercise@gmail.com">parkinsonzexercise@gmail.com</a>.</p>
+  </div>
+</body>
+</html>
