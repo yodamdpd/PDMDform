@@ -1,11 +1,12 @@
 
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Neurology Visit Prep</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Neurology Visit Prep</title>
+<style>
     body {
       font-family: Arial, sans-serif;
       max-width: 700px;
@@ -65,138 +66,404 @@
       padding-bottom: 5px;
       margin-bottom: 10px;
     }
-  </style>
-  <script>
+    .checkbox-group label {
+      display: block;
+      margin: 5px 0;
+    }
+  
+    @media print {
+      .print-buttons {
+        display: none !important;
+      }
+    }
+    
+@media print {
+  .summary-section {
+    column-count: 2;
+    column-gap: 40px;
+    max-height: 95vh;
+  }
+}
+
+.summary-section h3, .summary-section ul {
+  break-inside: avoid;
+}
+
+@media print {
+  .print-footer {
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    font-style: italic;
+  }
+}
+</style>
+<script>
+
+function toggleInput(checkbox, inputId) {
+  var input = document.getElementById(inputId);
+  input.style.display = checkbox.checked ? 'block' : 'none';
+}
+
     function handleSubmit(event) {
       event.preventDefault();
       const summary = document.getElementById('summary');
       summary.innerHTML = '';
 
-      const fields = [
-        { id: 'symptoms', label: 'Symptoms' },
-        { id: 'other_symptoms', label: 'Other Symptom' },
-        { id: 'medications', label: 'Medications' },
-        { id: 'supplements', label: 'Supplements' },
-        { id: 'exercise', label: 'Exercises' },
-        { id: 'other_exercise', label: 'Other Exercise' },
-        { id: 'questions', label: 'Questions for Doctor' },
-        { id: 'other_question', label: 'Other Question' },
-        { id: 'notes', label: 'Additional Notes' }
-      ];
+      const getChecked = name =>
+        Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(el => el.value);
 
-      fields.forEach(field => {
-        const element = document.getElementById(field.id);
-        if (element) {
-          let value = '';
-          if (element.type === 'select-multiple') {
-            const selected = Array.from(element.selectedOptions).map(opt => opt.text).join(', ');
-            value = selected;
+      const addSection = (title, values) => {
+        if (values.length > 0) {
+          const div = document.createElement('div');
+          div.innerHTML = `<h3>${title}</h3><ul>${values.map(val => `<li>${val}</li>`).join('')}</ul>`;
+          summary.appendChild(div);
+        }
+      };
+
+      
+['symptom1', 'symptom2', 'symptom3'].forEach(id => {
+  const sel = document.getElementById(id);
+  const otherBox = document.getElementById(id + 'Other');
+  if (sel) {
+    sel.addEventListener('change', function() {
+      otherBox.style.display = (sel.value === 'Other') ? 'block' : 'none';
+    });
+  }
+});
+const topSymptoms = [];
+['symptom1', 'symptom2', 'symptom3'].forEach(id => {
+  const sel = document.getElementById(id);
+  const otherBox = document.getElementById(id + 'Other');
+  if (sel && sel.value) {
+    topSymptoms.push(sel.value === 'Other' ? otherBox.value.trim() : sel.value);
+  }
+});
+const careTeamFields = [
+        { id: 'primaryCareName', label: 'Primary Care' },
+        { id: 'ptName', label: 'Physical Therapy' },
+        { id: 'mentalHealthName', label: 'Mental Health' },
+        { id: 'dermatologyName', label: 'Dermatology' },
+        { id: 'speechTherapyName', label: 'Speech Therapy' },
+        { id: 'fitnessCoachName', label: 'Fitness Coach or Program' }
+      ];
+      const careTeamSummary = [];
+      careTeamFields.forEach(member => {
+        const input = document.getElementById(member.id);
+        const label = member.label;
+        const checkbox = document.querySelector(`input[onchange="toggleInput(this, '${member.id}')"]`);
+        if (checkbox && checkbox.checked) {
+          if (input && input.value.trim()) {
+            careTeamSummary.push(label + ": " + input.value.trim());
           } else {
-            value = element.value;
+            careTeamSummary.push(label + ": <strong>YES</strong>");
           }
-          if (value && value.trim() !== '') {
-            const section = document.createElement('div');
-            section.innerHTML = `<h3>${field.label}</h3><p>${value}</p>`;
-            summary.appendChild(section);
-          }
+        } else {
+          careTeamSummary.push(label + ": <strong>NONE</strong>");
         }
       });
+      const otherCare = document.getElementById('otherCareTeam').value.trim();
+      if (otherCare) {
+        careTeamSummary.push("Other Care Team: " + otherCare);
+      }
+      addSection("My Care Team", careTeamSummary);
+
+      if (topSymptoms.length > 0) {
+  
+      
+      }
+
+  addSection("My Top 3 Symptoms", topSymptoms);
+const additionalSymptoms = document.getElementById('additionalSymptoms').value.trim();
+      if (additionalSymptoms) {
+        addSection("Other Symptoms", [additionalSymptoms]);
+}
+
+      addSection('Medications', getChecked('medication'));
+      const medOther = document.getElementById('other_meds').value.trim();
+      if (medOther) addSection('Other Medications', [medOther]);
+
+      addSection('Supplements', getChecked('supplement'));
+      const suppOther = document.getElementById('other_supplements').value.trim();
+      if (suppOther) addSection('Other Supplements', [suppOther]);
+
+      addSection('Exercises', getChecked('exercise'));
+
+      
+
+
+      
+
+      const daysEx = document.getElementById('exercise_days').value.trim();
+      if (daysEx) addSection('Exercise Frequency (days per week)', [daysEx]);
+
+      const goals = getChecked('goal');
+      const goalOther = document.getElementById('other_goals').value.trim();
+      if (goalOther) goals.push(goalOther);
+      addSection('My Goals for the Future', goals);
+
+
+      // Top 3 Questions
+      const topQuestions = [];
+      for (let i = 1; i <= 3; i++) {
+        const q = document.getElementById(`question${i}`);
+        const custom = document.getElementById(`custom_question${i}`);
+        const value = q.value === 'custom' ? custom.value : q.value;
+        if (value && value.trim() !== '') {
+          topQuestions.push(`<strong>${i}.</strong> ${value}`);
+        }
+      }
+      
+      
+
+
+      if (topQuestions.length) {
+        const qDiv = document.createElement('div');
+        qDiv.innerHTML = `<h3>My Top 3 Questions</h3>${topQuestions.join('<br>')}`;
+        summary.appendChild(qDiv);
+const gratitude = document.getElementById('gratitude').value.trim();
+      if (gratitude) {
+        addSection("I Am Most Grateful For", [gratitude]);
+const notes = document.getElementById('notes').value.trim();
+      if (notes) {
+        addSection('Additional Notes', [notes]);
+const primaryCheckbox = document.querySelector("input[onchange=\"toggleInput(this, 'primaryCareName')\"]");
+      if (!primaryCheckbox.checked) {
+        
+
+
+      }
+
+      
+      }
+
+      
+      
+      
+
+      
+      }
+
+
+
+      
+      
+      }
+
+
+
+      
+
+
+
+      
+
+
+      
+      const finalNote = `
+        <p style='margin-top: 30px; font-style: italic;'>
+          <strong>Note 1:</strong> This is meant to be a tool to help you and your neurologist make the most of limited time for your appointment.
+          It is unlikely there will be time to discuss every topic on the list. It is meant to help keep you on track and help your physician
+          decide what is most important to focus on during this visit.
+        </p>`;
+      const finalDiv = document.createElement('div');
+      finalDiv.innerHTML = finalNote;
+      summary.appendChild(finalDiv);
+
+      const primaryNote = document.createElement('div');
+      primaryNote.innerHTML = `
+        <p style='margin-top: 20px; font-style: italic;'>
+          <strong>Note 2:</strong> If you do not have a <strong>Primary Care Physician</strong>, it is critical that you find one.
+          A <strong>Primary Care Physician</strong> can help manage many PD symptoms such as anxiety and constipation
+          and ensure your other health needs are taken care of.
+        </p>`;
+      summary.appendChild(primaryNote);
+
 
       document.getElementById('form').style.display = 'none';
       document.getElementById('print-options').style.display = 'block';
       document.getElementById('summary-container').style.display = 'block';
     }
 
+    function toggleCustomInput(selectId, inputId) {
+      const select = document.getElementById(selectId);
+      const input = document.getElementById(inputId);
+      input.style.display = select.value === 'custom' ? 'block' : 'none';
+    }
+
     function printCopies() {
       window.print();
     }
+  
 
-    function limitSymptoms(event) {
-      const selectedOptions = Array.from(event.target.selectedOptions);
-      if (selectedOptions.length > 3) {
-        selectedOptions[selectedOptions.length - 1].selected = false;
-        alert('Please select only up to 3 symptoms.');
-      }
+document.querySelectorAll('input[name="symptom"]').forEach(function(checkbox) {
+  checkbox.addEventListener('change', function() {
+    let checkedBoxes = document.querySelectorAll('input[name="symptom"]:checked');
+    if (checkedBoxes.length > 3) {
+      this.checked = false;
+      alert("Please select only up to 3 symptoms.");
     }
-  </script>
+  });
+});
+</script>
 </head>
 <body>
-  <h1>Neurology Visit Prep</h1>
-  <h2>www.parkinsonz.org</h2>
-
-  <form id="form" onsubmit="handleSubmit(event)">
-    <label for="symptoms">Select up to 3 symptoms you'd like to discuss:</label>
-    <select name="symptoms" id="symptoms" multiple size="10" onchange="limitSymptoms(event)">
-      <option value="tremor">Tremor</option>
-      <option value="slowness">Slowness of movement (Bradykinesia)</option>
-      <option value="rigidity">Muscle stiffness (Rigidity)</option>
-      <option value="balance">Balance problems (Postural Instability)</option>
-      <option value="sleep">Sleep disturbances</option>
-      <option value="fatigue">Fatigue</option>
-      <option value="mood">Depression or anxiety</option>
-      <option value="cognition">Memory or cognitive changes</option>
-      <option value="speech">Speech or swallowing difficulties</option>
-      <option value="constipation">Constipation or digestive issues</option>
-      <option value="other">Other</option>
-    </select>
-    <input type="text" name="other_symptoms" id="other_symptoms" placeholder="Other symptom">
-
-    <label for="medications">List your Parkinson's medications, dose and frequency:</label>
-    <textarea name="medications" id="medications" rows="3" placeholder="Example: Sinemet 25/100 mg, 3 times/day"></textarea>
-
-    <label for="supplements">List any supplements you take:</label>
-    <textarea name="supplements" id="supplements" rows="3" placeholder="Example: Vitamin D, CoQ10, Omega-3, etc."></textarea>
-
-    <label for="exercise">Select exercises you currently do:</label>
-    <select name="exercise" id="exercise" multiple size="10">
-      <option value="walking">Walking</option>
-      <option value="yoga">Yoga</option>
-      <option value="tai_chi">Tai Chi</option>
-      <option value="boxing">Boxing (e.g., Rock Steady Boxing)</option>
-      <option value="cycling">Cycling</option>
-      <option value="strength_training">Strength Training</option>
-      <option value="swimming">Swimming</option>
-      <option value="dance">Dance or Movement Therapy</option>
-      <option value="running">Running</option>
-      <option value="other">Other</option>
-    </select>
-    <input type="text" name="other_exercise" id="other_exercise" placeholder="Other exercise">
-
-    <label for="questions">Questions you'd like to ask your doctor:</label>
-    <select name="questions" id="questions" multiple size="12">
-      <option value="new_symptoms">Are these new symptoms part of Parkinson’s or something else?</option>
-      <option value="medication_side_effects">Are any of my symptoms side effects from medications?</option>
-      <option value="treatment_change">Is it time to adjust or change my treatment plan?</option>
-      <option value="physical_therapy">Would physical or occupational therapy help me?</option>
-      <option value="clinical_trials">Am I eligible for any clinical trials?</option>
-      <option value="non_motor">What can I do about anxiety or sleep problems?</option>
-      <option value="long_term">What should I expect long-term with Parkinson’s?</option>
-      <option value="care_team">Should I add other specialists to my care team?</option>
-      <option value="dbs">Am I a candidate for Deep Brain Stimulation (DBS)?</option>
-      <option value="ultrasound">Am I a candidate for MRI-guided ultrasound?</option>
-      <option value="vyalev">Am I a candidate for the Vyalev pump?</option>
-      <option value="other">Other</option>
-    </select>
-    <input type="text" name="other_question" id="other_question" placeholder="Other question">
-
-    <label for="notes">Additional notes or questions:</label>
-    <textarea name="notes" id="notes" rows="4" placeholder="Anything else you want to share..."></textarea>
-
-    <input type="submit" value="Submit & Show Print Options">
-  </form>
-
-  <div id="print-options" class="print-buttons">
-    <p>Thank you! Please print 2 copies — one for yourself and one for your doctor.</p>
-    <button onclick="printCopies()">Print This Form</button>
-  </div>
-
-  <div id="summary-container" class="summary-section">
-    <h2>Visit Summary</h2>
-    <div id="summary"></div>
-  </div>
-
-  <div class="footer-message">
-    <p>Thank you for your help. Please send any feedback—positive or negative—and any suggested revisions to <strong>Sara Whittingham, MD</strong> at <a href="mailto:parkinsonzexercise@gmail.com">parkinsonzexercise@gmail.com</a>.</p>
-  </div>
-</body>
+<h1>Neurology Visit Prep</h1>
+<h2>www.parkinsonz.org</h2>
+<form id="form" onsubmit="handleSubmit(event)">
+<label>My Care Team:</label>
+<div class="checkbox-group">
+<label><input onchange="toggleInput(this, 'primaryCareName')" type="checkbox"/> Primary Care</label>
+<input id="primaryCareName" placeholder="Enter name" style="display:none" type="text"/>
+<label><input onchange="toggleInput(this, 'ptName')" type="checkbox"/> Physical Therapy</label>
+<input id="ptName" placeholder="Enter name" style="display:none" type="text"/>
+<label><input onchange="toggleInput(this, 'mentalHealthName')" type="checkbox"/> Mental Health</label>
+<input id="mentalHealthName" placeholder="Enter name" style="display:none" type="text"/>
+<label><input onchange="toggleInput(this, 'dermatologyName')" type="checkbox"/> Dermatology</label>
+<input id="dermatologyName" placeholder="Enter name" style="display:none" type="text"/>
+<label><input onchange="toggleInput(this, 'speechTherapyName')" type="checkbox"/> Speech Therapy</label>
+<input id="speechTherapyName" placeholder="Enter name" style="display:none" type="text"/>
+<label><input onchange="toggleInput(this, 'fitnessCoachName')" type="checkbox"/> Fitness Coach or Program</label>
+<input id="fitnessCoachName" placeholder="Enter name" style="display:none" type="text"/>
+</div>
+<label>Other Care Team Members:</label>
+<input id="otherCareTeam" placeholder="e.g., Occupational Therapist, Neurologist" type="text"/>
+<label>Rank Your Top 3 Symptoms:</label>
+<label>Symptom 1:</label>
+<select id="symptom1">
+<option value="">-- Select a symptom --</option>
+<option value="Tremor">Tremor</option>
+<option value="Rigidity">Rigidity</option>
+<option value="Slowness of Movement">Slowness of Movement</option>
+<option value="Freezing">Freezing</option>
+<option value="Posture/Balance">Posture/Balance</option>
+<option value="Fatigue">Fatigue</option>
+<option value="Sleep Problems">Sleep Problems</option>
+<option value="Constipation">Constipation</option>
+<option value="Anxiety">Anxiety</option>
+<option value="Depression">Depression</option>
+<option value="Pain">Pain</option>
+<option value="Cognition/Memory">Cognition/Memory</option>
+<option value="Speech/Voice">Speech/Voice</option>
+<option value="Other">Other</option>
+</select>
+<input id="symptom1Other" placeholder="If other, type here" style="display:none;" type="text"/>
+<label>Symptom 2:</label>
+<select id="symptom2">
+<option value="">-- Select a symptom --</option>
+<option value="Tremor">Tremor</option>
+<option value="Rigidity">Rigidity</option>
+<option value="Slowness of Movement">Slowness of Movement</option>
+<option value="Freezing">Freezing</option>
+<option value="Posture/Balance">Posture/Balance</option>
+<option value="Fatigue">Fatigue</option>
+<option value="Sleep Problems">Sleep Problems</option>
+<option value="Constipation">Constipation</option>
+<option value="Anxiety">Anxiety</option>
+<option value="Depression">Depression</option>
+<option value="Pain">Pain</option>
+<option value="Cognition/Memory">Cognition/Memory</option>
+<option value="Speech/Voice">Speech/Voice</option>
+<option value="Other">Other</option>
+</select>
+<input id="symptom2Other" placeholder="If other, type here" style="display:none;" type="text"/>
+<label>Symptom 3:</label>
+<select id="symptom3">
+<option value="">-- Select a symptom --</option>
+<option value="Tremor">Tremor</option>
+<option value="Rigidity">Rigidity</option>
+<option value="Slowness of Movement">Slowness of Movement</option>
+<option value="Freezing">Freezing</option>
+<option value="Posture/Balance">Posture/Balance</option>
+<option value="Fatigue">Fatigue</option>
+<option value="Sleep Problems">Sleep Problems</option>
+<option value="Constipation">Constipation</option>
+<option value="Anxiety">Anxiety</option>
+<option value="Depression">Depression</option>
+<option value="Pain">Pain</option>
+<option value="Cognition/Memory">Cognition/Memory</option>
+<option value="Speech/Voice">Speech/Voice</option>
+<option value="Other">Other</option>
+</select><input id="additionalSymptoms" placeholder="Other symptoms you'd like to mention (optional)" type="text"/>
+<input id="symptom3Other" placeholder="If other, type here" style="display:none;" type="text"/>
+<label>Parkinson's Medications:</label>
+<div class="checkbox-group">
+<label><input name="medication" type="checkbox" value="Levodopa/Carbidopa (Sinemet)"/> Levodopa/Carbidopa (Sinemet)</label>
+<label><input name="medication" type="checkbox" value="Ropinirole (Requip)"/> Ropinirole (Requip)</label>
+<label><input name="medication" type="checkbox" value="Pramipexole (Mirapex)"/> Pramipexole (Mirapex)</label>
+<label><input name="medication" type="checkbox" value="Rotigotine (Neupro Patch)"/> Rotigotine (Neupro Patch)</label>
+<label><input name="medication" type="checkbox" value="Selegiline (Eldepryl)"/> Selegiline (Eldepryl)</label>
+<label><input name="medication" type="checkbox" value="Rasagiline (Azilect)"/> Rasagiline (Azilect)</label>
+<label><input name="medication" type="checkbox" value="Amantadine"/> Amantadine</label>
+</div>
+<input id="other_meds" placeholder="Other Parkinson's medications" type="text"/>
+<label>Other Medications:</label>
+<div class="checkbox-group">
+<label><input name="medication" type="checkbox" value="Rosuvastatin (Crestor)"/> Rosuvastatin (Crestor)</label>
+<label><input name="medication" type="checkbox" value="Lisinopril"/> Lisinopril</label>
+<label><input name="medication" type="checkbox" value="Amlodipine"/> Amlodipine</label>
+<label><input name="medication" type="checkbox" value="Metoprolol"/> Metoprolol</label>
+<label><input name="medication" type="checkbox" value="Aspirin"/> Aspirin</label>
+</div>
+<input id="other_nonparkinsons_meds" placeholder="Other non-Parkinson's medications" type="text"/>
+<label>Supplements:</label>
+<div class="checkbox-group">
+<label><input name="supplement" type="checkbox" value="Multivitamin"/> Multivitamin</label>
+<label><input name="supplement" type="checkbox" value="Vitamin B"/> Vitamin B</label>
+<label><input name="supplement" type="checkbox" value="Vitamin D"/> Vitamin D</label>
+<label><input name="supplement" type="checkbox" value="Magnesium"/> Magnesium</label>
+<label><input name="supplement" type="checkbox" value="Stool Softener"/> Stool Softener</label>
+</div>
+<input id="other_supplements" placeholder="Other supplements" type="text"/>
+<label>Exercises:</label>
+<div class="checkbox-group">
+<label><input name="exercise" type="checkbox" value="Walking"/> Walking</label>
+<label><input name="exercise" type="checkbox" value="Yoga"/> Yoga</label>
+<label><input name="exercise" type="checkbox" value="Tai Chi"/> Tai Chi</label>
+<label><input name="exercise" type="checkbox" value="Boxing"/> Boxing</label>
+<label><input name="exercise" type="checkbox" value="Cycling"/> Cycling</label>
+<label><input name="exercise" type="checkbox" value="Strength Training"/> Strength Training</label>
+<label><input name="exercise" type="checkbox" value="Swimming"/> Swimming</label>
+<label><input name="exercise" type="checkbox" value="Dance"/> Dance</label>
+<label><input name="exercise" type="checkbox" value="Running"/> Running</label>
+</div>
+<label for="exercise_days">How many days per week do you exercise?</label>
+<input id="exercise_days" name="exercise_days" placeholder="e.g., 3, 5, daily" type="text"/>
+<label>My Goals for the Future:</label>
+<div class="checkbox-group">
+<label><input name="goal" type="checkbox" value="Increase physical activity"/> Increase physical activity</label>
+<label><input name="goal" type="checkbox" value="Increase social activity"/> Increase social activity</label>
+<label><input name="goal" type="checkbox" value="Attend support groups"/> Attend support groups</label>
+<label><input name="goal" type="checkbox" value="Volunteer to help others"/> Volunteer to help others</label>
+</div>
+<input id="other_goals" placeholder="Other goals" type="text"/>
+<label>My Top 3 Questions for My Doctor:</label>
+<label>1. Most important question</label>
+<select id="question1" onchange="toggleCustomInput('question1', 'custom_question1')"><option value="">Select a question</option><option value="Are these new symptoms part of Parkinson’s or something else?">Are these new symptoms part of Parkinson’s or something else?</option><option value="Are any symptoms side effects from medications?">Are any symptoms side effects from medications?</option><option value="Should we change my treatment plan?">Should we change my treatment plan?</option><option value="Would therapy help?">Would therapy help?</option><option value="Would I benefit from physical therapy?">Would I benefit from physical therapy?</option><option value="Am I a candidate for DBS?">Am I a candidate for DBS?</option><option value="Am I a candidate for MRI guided ultrasound?">Am I a candidate for MRI guided ultrasound?</option><option value="Am I a candidate for Vyalev pump?">Am I a candidate for Vyalev pump?</option><option value="Am I eligible for clinical trials?">Am I eligible for clinical trials?</option><option value="How can I manage non-motor symptoms?">How can I manage non-motor symptoms?</option><option value="What should I expect long-term?">What should I expect long-term?</option><option value="Should I add other specialists?">Should I add other specialists?</option><option value="custom">Other (write your own below)</option></select>
+<input id="custom_question1" placeholder="Write your own question" style="display:none" type="text"/>
+<label>2. Second question</label>
+<select id="question2" onchange="toggleCustomInput('question2', 'custom_question2')"><option value="">Select a question</option><option value="Are these new symptoms part of Parkinson’s or something else?">Are these new symptoms part of Parkinson’s or something else?</option><option value="Are any symptoms side effects from medications?">Are any symptoms side effects from medications?</option><option value="Should we change my treatment plan?">Should we change my treatment plan?</option><option value="Would therapy help?">Would therapy help?</option><option value="Would I benefit from physical therapy?">Would I benefit from physical therapy?</option><option value="Am I a candidate for DBS?">Am I a candidate for DBS?</option><option value="Am I a candidate for MRI guided ultrasound?">Am I a candidate for MRI guided ultrasound?</option><option value="Am I a candidate for Vyalev pump?">Am I a candidate for Vyalev pump?</option><option value="Am I eligible for clinical trials?">Am I eligible for clinical trials?</option><option value="How can I manage non-motor symptoms?">How can I manage non-motor symptoms?</option><option value="What should I expect long-term?">What should I expect long-term?</option><option value="Should I add other specialists?">Should I add other specialists?</option><option value="custom">Other (write your own below)</option></select>
+<input id="custom_question2" placeholder="Write your own question" style="display:none" type="text"/>
+<label>3. Third question</label>
+<select id="question3" onchange="toggleCustomInput('question3', 'custom_question3')"><option value="">Select a question</option><option value="Are these new symptoms part of Parkinson’s or something else?">Are these new symptoms part of Parkinson’s or something else?</option><option value="Are any symptoms side effects from medications?">Are any symptoms side effects from medications?</option><option value="Should we change my treatment plan?">Should we change my treatment plan?</option><option value="Would therapy help?">Would therapy help?</option><option value="Would I benefit from physical therapy?">Would I benefit from physical therapy?</option><option value="Am I a candidate for DBS?">Am I a candidate for DBS?</option><option value="Am I a candidate for MRI guided ultrasound?">Am I a candidate for MRI guided ultrasound?</option><option value="Am I a candidate for Vyalev pump?">Am I a candidate for Vyalev pump?</option><option value="Am I eligible for clinical trials?">Am I eligible for clinical trials?</option><option value="How can I manage non-motor symptoms?">How can I manage non-motor symptoms?</option><option value="What should I expect long-term?">What should I expect long-term?</option><option value="Should I add other specialists?">Should I add other specialists?</option><option value="custom">Other (write your own below)</option></select>
+<input id="custom_question3" placeholder="Write your own question" style="display:none" type="text"/>
+<label for="notes">Additional notes or questions:</label>
+<textarea id="notes" name="notes" placeholder="Anything else you want to share..." rows="4"></textarea>
+<input type="submit" value="Submit &amp; Show Print Options"/>
+<label>I am most grateful for:</label><textarea id="gratitude" placeholder="Write something you're grateful for..." rows="3" style="width: 100%;"></textarea></form>
+<div class="print-buttons" id="print-options">
+<p>Thank you! Please print 2 copies — one for yourself and one for your doctor.</p>
+<button onclick="printCopies()">Print This Form</button>
+</div>
+<div class="summary-section" id="summary-container">
+<div id="summary"></div>
+</div>
+<div class="footer-message">
+<p>Thank you for your help. Please send any feedback—positive or negative—and any suggested revisions to <strong>Sara Whittingham, MD</strong> at <a href="mailto:parkinsonzexercise@gmail.com">parkinsonzexercise@gmail.com</a>.</p>
+<p style="margin-top: 20px;">Please visit <a href="https://www.parkinsonz.org" target="_blank">www.parkinsonz.org</a> to connect with and be inspired by other Parkinsonz Warriors.</p>
+</div>
+<div class="print-footer">© 2025 Sara Whittingham MD</div></body>
 </html>
